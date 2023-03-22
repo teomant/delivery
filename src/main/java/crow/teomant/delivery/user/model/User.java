@@ -12,17 +12,20 @@ public class User {
     private String name;
     private String contactInfo;
     private String email;
+    private String address;
     private LocalDate birthDate;
 
     public void update(
         String name,
         String email,
         String contactInfo,
+        String address,
         LocalDate birthDate
     ) {
         this.name = name;
         this.email = email;
         this.contactInfo = contactInfo;
+        this.address = address;
         this.birthDate = birthDate;
     }
 

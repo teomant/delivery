@@ -18,10 +18,13 @@ public class OrderValue {
     private Order.Status status;
 
     private IsActual<String> restaurantName;
+    private IsActual<String> restaurantAddress;
     private IsActual<String> userUsername;
+    private IsActual<String> userAddress;
     private List<IsActual<Order.ItemState>> items;
 
     public Boolean isActual() {
-        return restaurantName.getActual() && userUsername.getActual() && items.stream().allMatch(IsActual::getActual);
+        return restaurantName.getActual() && restaurantAddress.getActual() && userUsername.getActual()
+            && userAddress.getActual() && items.stream().allMatch(IsActual::getActual);
     }
 }

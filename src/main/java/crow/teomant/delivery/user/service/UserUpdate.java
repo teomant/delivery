@@ -9,5 +9,6 @@ public class UserUpdate {
     private String name;
     private String email;
     private String contactInfo;
+    private String address;
     private LocalDate birthDate;
 }

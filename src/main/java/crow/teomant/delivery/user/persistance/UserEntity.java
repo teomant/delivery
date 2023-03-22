@@ -36,6 +36,9 @@ public class UserEntity {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "address")
+    private String address;
+
     @Column(name = "birth_date")
     private LocalDate birthDate;
 
@@ -46,6 +49,7 @@ public class UserEntity {
             name,
             contactInfo,
             email,
+            address,
             birthDate
         );
     }

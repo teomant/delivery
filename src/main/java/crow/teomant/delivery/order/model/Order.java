@@ -74,14 +74,14 @@ public class Order {
     @NoArgsConstructor
     @AllArgsConstructor
     @EqualsAndHashCode
-    //restaurantName and userUsername - just examples, we can store here any important information about user/restaurant
-    //such as address, open hours etc
     public static class State {
         private Integer restaurantId;
         private String restaurantName;
+        private String restaurantAddress;
 
         private Integer userId;
         private String userName;
+        private String userAddress;
 
         private List<ItemState> items;
         private LocalDate date;

@@ -16,17 +16,20 @@ public class Restaurant {
     private String name;
     private String contactInfo;
     private String info;
+    private String address;
     private List<OpeningHours> openingHours;
 
     public void update(
         String name,
         String info,
         String contactInfo,
+        String address,
         List<OpeningHours> openingHours
     ) {
         this.name = name;
         this.info = info;
         this.contactInfo = contactInfo;
+        this.address = address;
         this.openingHours = openingHours;
     }
 

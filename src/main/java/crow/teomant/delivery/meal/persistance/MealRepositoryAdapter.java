@@ -2,14 +2,11 @@ package crow.teomant.delivery.meal.persistance;
 
 import crow.teomant.delivery.meal.model.Meal;
 import crow.teomant.delivery.meal.model.MealRepository;
-import crow.teomant.delivery.order.model.Order;
-import crow.teomant.delivery.order.persistance.OrderEntity;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @RequiredArgsConstructor

@@ -1,6 +1,5 @@
 package crow.teomant.delivery.meal.model;
 
-import crow.teomant.delivery.order.model.Order;
 import java.util.List;
 import java.util.Optional;
 

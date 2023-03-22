@@ -1,8 +1,5 @@
 package crow.teomant.delivery.order.web;
 
-import crow.teomant.delivery.meal.model.Meal;
-import crow.teomant.delivery.meal.service.MealCreate;
-import crow.teomant.delivery.meal.service.MealUpdate;
 import crow.teomant.delivery.order.service.OrderCreate;
 import crow.teomant.delivery.order.service.OrderService;
 import crow.teomant.delivery.order.service.OrderUpdate;

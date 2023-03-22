@@ -35,7 +35,8 @@ public class RestaurantService {
         //any other validations
 
         return restaurantRepository.save(
-            new Restaurant(null, create.getName(), create.getContactInfo(), create.getInfo(), create.getOpeningHours())
+            new Restaurant(null, create.getName(), create.getContactInfo(), create.getInfo(),
+                create.getAddress(), create.getOpeningHours())
         );
     }
 
@@ -68,6 +69,7 @@ public class RestaurantService {
             update.getName(),
             update.getInfo(),
             update.getContactInfo(),
+            update.getAddress(),
             update.getOpeningHours()
         );
 

@@ -57,9 +57,21 @@ public class OrderService {
                     .orElse(false)
             ),
             new IsActual<>(
+                saved.getState().getRestaurantAddress(),
+                restaurant.map(Restaurant::getAddress)
+                    .map(name -> Objects.equals(name, saved.getState().getRestaurantName()))
+                    .orElse(false)
+            ),
+            new IsActual<>(
                 saved.getState().getUserName(),
                 user.map(User::getName)
                     .map(name -> Objects.equals(name, saved.getState().getUserName()))
+                    .orElse(false)
+            ),
+            new IsActual<>(
+                saved.getState().getUserAddress(),
+                user.map(User::getAddress)
+                    .map(address -> Objects.equals(address, saved.getState().getUserName()))
                     .orElse(false)
             ),
             saved.getState().getItems().stream()
@@ -123,8 +135,10 @@ public class OrderService {
                 new Order.State(
                     restaurant.getId(),
                     restaurant.getName(),
+                    restaurant.getAddress(),
                     user.getId(),
                     user.getName(),
+                    user.getAddress(),
                     create.getItems().stream().map(item -> getItemState(mealsInOrder, item))
                         .collect(Collectors.toList()),
                     LocalDate.now()
@@ -141,7 +155,9 @@ public class OrderService {
             saved.getDelivered(),
             saved.getStatus(),
             new IsActual<>(saved.getState().getRestaurantName(), true),
+            new IsActual<>(saved.getState().getRestaurantAddress(), true),
             new IsActual<>(saved.getState().getUserName(), true),
+            new IsActual<>(saved.getState().getUserAddress(), true),
             saved.getState().getItems().stream().map(item -> new IsActual<>(item, true))
                 .collect(Collectors.toList())
         );
@@ -207,8 +223,10 @@ public class OrderService {
             new Order.State(
                 restaurant.getId(),
                 restaurant.getName(),
+                restaurant.getAddress(),
                 user.getId(),
                 user.getName(),
+                user.getAddress(),
                 update.getItems().stream().map(item -> getItemState(mealsInOrder, item))
                     .collect(Collectors.toList()),
                 LocalDate.now()
@@ -225,7 +243,9 @@ public class OrderService {
             saved.getDelivered(),
             saved.getStatus(),
             new IsActual<>(saved.getState().getRestaurantName(), true),
+            new IsActual<>(saved.getState().getRestaurantAddress(), true),
             new IsActual<>(saved.getState().getUserName(), true),
+            new IsActual<>(saved.getState().getUserAddress(), true),
             saved.getState().getItems().stream().map(item -> new IsActual<>(item, true))
                 .collect(Collectors.toList())
         );

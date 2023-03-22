@@ -10,5 +10,6 @@ public class RestaurantUpdate {
     private String name;
     private String contactInfo;
     private String info;
+    private String address;
     private List<Restaurant.OpeningHours> openingHours;
 }

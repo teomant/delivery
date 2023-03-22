@@ -39,7 +39,7 @@ public class UserService {
 
         return userRepository.save(
             new User(null, create.getUsername(), create.getName(), create.getContactInfo(), create.getEmail(),
-                create.getBirthDate())
+                create.getAddress(), create.getBirthDate())
         );
     }
 
@@ -53,6 +53,7 @@ public class UserService {
             update.getName(),
             update.getEmail(),
             update.getContactInfo(),
+            update.getAddress(),
             update.getBirthDate()
         );
 

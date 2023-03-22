@@ -34,6 +34,9 @@ public class RestaurantEntity {
     @Column(name = "info")
     private String info;
 
+    @Column(name = "address")
+    private String address;
+
     @Column(name = "opening_hours")
     @Convert(converter = OpeningHoursConverter.class)
     private List<Restaurant.OpeningHours> openingHours;
@@ -44,6 +47,7 @@ public class RestaurantEntity {
             name,
             contactInfo,
             info,
+            address,
             openingHours
         );
     }
