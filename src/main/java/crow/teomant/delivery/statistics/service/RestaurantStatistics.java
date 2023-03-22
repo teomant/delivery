@@ -9,7 +9,7 @@ public record RestaurantStatistics(
     List<OrderValue> orders,
     List<TopByNumber> topUsersByNumberOfOrders,
     List<TopByNumber> topMealsByNumberOfOrders,
-    List<TopByPrice> mostExpensiveMeals,
+    List<TopByPrice> mostExpensiveMealsInOrders,
     List<TopBySpend> spendMostMoney,
     BigDecimal totalForPeriod
 ) {
