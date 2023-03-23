@@ -55,9 +55,4 @@ public class OrderController {
     public OrderValue update(@RequestBody OrderUpdate update) {
         return orderService.update(update);
     }
-
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Integer id) {
-        orderService.delete(id);
-    }
 }

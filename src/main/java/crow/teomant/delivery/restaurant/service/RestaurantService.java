@@ -1,8 +1,11 @@
 package crow.teomant.delivery.restaurant.service;
 
+import crow.teomant.delivery.meal.model.Meal;
 import crow.teomant.delivery.meal.model.MealRepository;
 import crow.teomant.delivery.restaurant.model.Restaurant;
 import crow.teomant.delivery.restaurant.model.RestaurantRepository;
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -15,28 +18,48 @@ public class RestaurantService {
     private final RestaurantRepository restaurantRepository;
     private final MealRepository mealRepository;
 
-    public Restaurant get(Integer id) {
-        //any validations
+    public RestaurantValue get(Integer id) {
 
-        return restaurantRepository.findById(id)
+        Restaurant restaurant = restaurantRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("No restaurant with id " + id));
-    }
 
-    public List<Restaurant> getAll() {
+        if (restaurant.getDeleted()) {
+            throw new IllegalArgumentException("No restaurant restaurant id " + restaurant.getId());
+        }
         //any validations
 
-        return restaurantRepository.getAll();
+        return new RestaurantValue(restaurant);
     }
 
-    public Restaurant create(RestaurantCreate create) {
+    public List<RestaurantValue> getAll() {
+        //any validations
+
+        return restaurantRepository.getAll().stream()
+            .filter(restaurant -> !restaurant.getDeleted())
+            .map(RestaurantValue::new)
+            .collect(Collectors.toList());
+    }
+
+    public RestaurantValue create(RestaurantCreate create) {
 
         validateOpeningHours(create.getOpeningHours());
 
         //any other validations
 
-        return restaurantRepository.save(
-            new Restaurant(null, create.getName(), create.getContactInfo(), create.getInfo(),
-                create.getAddress(), create.getOpeningHours())
+        return new RestaurantValue(
+            restaurantRepository.save(
+                new Restaurant(
+                    null,
+                    create.getName(),
+                    create.getContactInfo(),
+                    create.getInfo(),
+                    create.getAddress(),
+                    create.getOpeningHours(),
+                    Collections.emptyList(),
+                    LocalDateTime.now(),
+                    false
+                )
+            )
         );
     }
 
@@ -58,9 +81,13 @@ public class RestaurantService {
         }
     }
 
-    public Restaurant update(RestaurantUpdate update) {
+    public RestaurantValue update(RestaurantUpdate update) {
         Restaurant restaurant = restaurantRepository.findById(update.getId())
             .orElseThrow(() -> new IllegalArgumentException("No restaurant with id " + update.getId()));
+
+        if (restaurant.getDeleted()) {
+            throw new IllegalArgumentException("No restaurant restaurant id " + restaurant.getId());
+        }
 
         validateOpeningHours(update.getOpeningHours());
         //any validations
@@ -73,13 +100,21 @@ public class RestaurantService {
             update.getOpeningHours()
         );
 
-        return restaurantRepository.save(restaurant);
+        return new RestaurantValue(restaurantRepository.save(restaurant));
     }
 
     @Transactional
     public void delete(Integer id) {
         //any validations
-        mealRepository.deleteByRestaurantId(id);
-        restaurantRepository.delete(id);
+
+        Restaurant restaurant = restaurantRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("No restaurant with id " + id));
+
+        List<Meal> meals = mealRepository.findByRestaurantId(id);
+        meals.forEach(Meal::markDeleted);
+        meals.forEach(mealRepository::save);
+
+        restaurant.markDeleted();
+        restaurantRepository.save(restaurant);
     }
 }

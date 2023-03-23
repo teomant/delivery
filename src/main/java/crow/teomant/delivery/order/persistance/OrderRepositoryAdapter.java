@@ -40,21 +40,20 @@ public class OrderRepositoryAdapter implements OrderRepository {
                     order.getApproved(),
                     order.getDelivered(),
                     order.getStatus(),
-                    order.getState()
+                    order.getItems(),
+                    order.getStates(),
+                    order.getVersion()
                 )
             );
 
         orderEntity.setApproved(order.getApproved());
         orderEntity.setDelivered(order.getDelivered());
         orderEntity.setStatus(order.getStatus());
-        orderEntity.setState(order.getState());
+        orderEntity.setItems(order.getItems());
+        orderEntity.setStates(order.getStates());
+        orderEntity.setVersion(order.getVersion());
 
         return jpaRepository.save(orderEntity).toModel();
-    }
-
-    @Override
-    public void delete(Integer id) {
-        jpaRepository.deleteById(id);
     }
 
 }

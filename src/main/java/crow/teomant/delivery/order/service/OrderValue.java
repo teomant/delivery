@@ -1,7 +1,10 @@
 package crow.teomant.delivery.order.service;
 
+import crow.teomant.delivery.meal.model.Meal;
 import crow.teomant.delivery.order.model.Order;
-import java.time.LocalDate;
+import crow.teomant.delivery.restaurant.model.Restaurant;
+import crow.teomant.delivery.user.model.User;
+import java.math.BigDecimal;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,19 +15,31 @@ public class OrderValue {
     private final Integer id;
     private final Integer restaurantId;
     private final Integer userId;
-    private LocalDate created;
-    private LocalDate approved;
-    private LocalDate delivered;
-    private Order.Status status;
+    private Order.State state;
 
-    private IsActual<String> restaurantName;
-    private IsActual<String> restaurantAddress;
-    private IsActual<String> userUsername;
-    private IsActual<String> userAddress;
-    private List<IsActual<Order.ItemState>> items;
+    private Sugestion<Restaurant.State> restaurant;
+    private Sugestion<User.State> user;
+    private List<Sugestion<Meal.State>> meals;
 
     public Boolean isActual() {
-        return restaurantName.getActual() && restaurantAddress.getActual() && userUsername.getActual()
-            && userAddress.getActual() && items.stream().allMatch(IsActual::getActual);
+        return restaurant.getActual() && user.getActual() && meals.stream().allMatch(Sugestion::getActual);
+    }
+
+    public BigDecimal getTotal() {
+        return state.getItems().stream()
+            .map(item -> {
+                    Meal.State current = meals.stream()
+                        .filter(meal -> meal.getCurrent().getId().equals(item.getId()))
+                        .findAny().get().getCurrent();
+
+                    return item.getAddons().stream()
+                        .map(addon -> current.getAddons().stream()
+                            .filter(a -> a.getName().equals(addon))
+                            .findAny()
+                            .map(Meal.Addon::getPrice).get())
+                        .reduce(BigDecimal.ZERO, BigDecimal::add)
+                        .add(current.getPrice());
+                }
+            ).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

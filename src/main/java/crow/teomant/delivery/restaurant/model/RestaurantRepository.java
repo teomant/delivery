@@ -10,5 +10,4 @@ public interface RestaurantRepository {
 
     Restaurant save(Restaurant restaurant);
 
-    void delete(Integer id);
 }

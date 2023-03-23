@@ -32,19 +32,17 @@ public class UserRepositoryAdapter implements UserRepository {
     public User save(User user) {
         UserEntity userEntity = Optional.ofNullable(user.getId()).map(jpaRepository::getReferenceById)
             .orElse(new UserEntity(null, user.getUsername(), user.getEmail(), user.getContactInfo(), user.getName(),
-                user.getAddress(), user.getBirthDate()));
+                user.getAddress(), user.getBirthDate(), user.getStates(), user.getVersion(), user.getDeleted()));
 
         userEntity.setName(user.getName());
         userEntity.setEmail(user.getEmail());
         userEntity.setContactInfo(user.getContactInfo());
         userEntity.setAddress(user.getAddress());
         userEntity.setBirthDate(user.getBirthDate());
+        userEntity.setStates(user.getStates());
+        userEntity.setVersion(user.getVersion());
+        userEntity.setDeleted(user.getDeleted());
 
         return jpaRepository.save(userEntity).toModel();
-    }
-
-    @Override
-    public void delete(Integer id) {
-        jpaRepository.deleteById(id);
     }
 }

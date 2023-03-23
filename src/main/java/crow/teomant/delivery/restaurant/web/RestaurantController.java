@@ -1,9 +1,9 @@
 package crow.teomant.delivery.restaurant.web;
 
-import crow.teomant.delivery.restaurant.model.Restaurant;
 import crow.teomant.delivery.restaurant.service.RestaurantCreate;
 import crow.teomant.delivery.restaurant.service.RestaurantService;
 import crow.teomant.delivery.restaurant.service.RestaurantUpdate;
+import crow.teomant.delivery.restaurant.service.RestaurantValue;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,22 +22,22 @@ public class RestaurantController {
     private final RestaurantService restaurantService;
 
     @GetMapping
-    public List<Restaurant> getAll() {
+    public List<RestaurantValue> getAll() {
         return restaurantService.getAll();
     }
 
     @GetMapping("/{id}")
-    public Restaurant get(@PathVariable Integer id) {
+    public RestaurantValue get(@PathVariable Integer id) {
         return restaurantService.get(id);
     }
 
     @PostMapping
-    public Restaurant create(@RequestBody RestaurantCreate create) {
+    public RestaurantValue create(@RequestBody RestaurantCreate create) {
         return restaurantService.create(create);
     }
 
     @PutMapping
-    public Restaurant update(@RequestBody RestaurantUpdate update) {
+    public RestaurantValue update(@RequestBody RestaurantUpdate update) {
         return restaurantService.update(update);
     }
 

@@ -1,7 +1,9 @@
 package crow.teomant.delivery.order.model;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import crow.teomant.delivery.order.service.Item;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,42 +17,55 @@ public class Order {
     private final Integer id;
     private final Integer restaurantId;
     private final Integer userId;
-    private LocalDate created;
-    private LocalDate approved;
-    private LocalDate delivered;
+    private LocalDateTime created;
+    private LocalDateTime approved;
+    private LocalDateTime delivered;
     private Status status;
-    private State state;
+    private List<Item> items;
+    private List<State> states;
+    private LocalDateTime version;
 
-    public Order(Integer restaurantId, Integer userId, State state) {
+    public Order(Integer restaurantId, Integer userId, List<Item> items) {
         this.id = null;
         this.restaurantId = restaurantId;
         this.userId = userId;
-        this.state = state;
+        this.items = items;
+        this.states = Collections.emptyList();
         this.status = Status.DRAFT;
-        this.created = LocalDate.now();
+        this.created = LocalDateTime.now();
+        this.version = LocalDateTime.now();
     }
 
-    public void update(State state) {
+    public void update(List<Item> items) {
         if (this.status != Status.DRAFT) {
             throw new IllegalStateException("You can modify only draft order");
         }
-        this.state = state;
+        this.states.add(new State(this.id, this.created, this.approved, this.delivered, this.status, this.getItems(),
+            this.version));
+        this.items = items;
+        this.version = LocalDateTime.now();
     }
 
     public void approved() {
         if (this.status != Status.DRAFT) {
             throw new IllegalStateException("You can approve only draft order");
         }
+        this.states.add(new State(this.id, this.created, this.approved, this.delivered, this.status, this.getItems(),
+            this.version));
         this.status = Status.PROCESSING;
-        this.approved = LocalDate.now();
+        this.approved = LocalDateTime.now();
+        this.version = LocalDateTime.now();
     }
 
     public void delivered() {
         if (this.status != Status.PROCESSING) {
             throw new IllegalStateException("You can deliver only approved order");
         }
+        this.states.add(new State(this.id, this.created, this.approved, this.delivered, this.status, this.getItems(),
+            this.version));
         this.status = Status.DELIVERED;
-        this.delivered = LocalDate.now();
+        this.delivered = LocalDateTime.now();
+        this.version = LocalDateTime.now();
     }
 
     public enum Status {
@@ -64,41 +79,23 @@ public class Order {
     @AllArgsConstructor
     @EqualsAndHashCode
     public static class State {
-        private Integer restaurantId;
-        private String restaurantName;
-        private String restaurantAddress;
-
-        private Integer userId;
-        private String userName;
-        private String userAddress;
-
-        private List<ItemState> items;
-        private LocalDate date;
+        private Integer id;
+        private LocalDateTime created;
+        private LocalDateTime approved;
+        private LocalDateTime delivered;
+        private Order.Status status;
+        private List<Item> items;
+        private LocalDateTime version;
     }
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class ItemState {
-        Integer id;
-        String name;
-        BigDecimal price;
-        List<AddonState> addons;
-        private LocalDate date;
-
-        public BigDecimal getTotal() {
-            return addons.stream().map(AddonState::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add).add(price);
-        }
+    public State getCurrentState() {
+        return new State(id, created, approved, delivered, status, items, version);
     }
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class AddonState {
-        String name;
-        String label;
-        BigDecimal price;
-        private LocalDate date;
+    public State getStateAt(LocalDateTime at) {
+        return at.isAfter(version) ? getCurrentState() : states.stream()
+            .filter(state -> state.getVersion().isBefore(at))
+            .max(Comparator.comparing(State::getVersion))
+            .orElseThrow();
     }
-
 }

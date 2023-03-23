@@ -37,23 +37,16 @@ public class MealRepositoryAdapter implements MealRepository {
     public Meal save(Meal meal) {
         MealEntity mealEntity = Optional.ofNullable(meal.getId()).map(jpaRepository::getReferenceById)
             .orElse(new MealEntity(null, meal.getName(), meal.getInfo(), meal.getRestaurantId(), meal.getPrice(),
-                meal.getAddons()));
+                meal.getAddons(), meal.getStates(), meal.getVersion(), meal.getDeleted()));
 
         mealEntity.setName(meal.getName());
         mealEntity.setInfo(meal.getInfo());
         mealEntity.setPrice(meal.getPrice());
         mealEntity.setAddons(meal.getAddons());
+        mealEntity.setStates(meal.getStates());
+        mealEntity.setVersion(meal.getVersion());
+        mealEntity.setDeleted(meal.getDeleted());
 
         return jpaRepository.save(mealEntity).toModel();
-    }
-
-    @Override
-    public void delete(Integer id) {
-        jpaRepository.deleteById(id);
-    }
-
-    @Override
-    public void deleteByRestaurantId(Integer id) {
-        jpaRepository.deleteAllByRestaurantId(id);
     }
 }

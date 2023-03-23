@@ -2,12 +2,16 @@ package crow.teomant.delivery.user.persistance;
 
 import crow.teomant.delivery.user.model.User;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -42,6 +46,16 @@ public class UserEntity {
     @Column(name = "birth_date")
     private LocalDate birthDate;
 
+    @Column(name = "states")
+    @Convert(converter = UserStateConverter.class)
+    private List<User.State> states;
+
+    @Column(name = "version")
+    private LocalDateTime version;
+
+    @Column(name = "deleted")
+    private Boolean deleted;
+
     public User toModel() {
         return new User(
             id,
@@ -50,7 +64,10 @@ public class UserEntity {
             contactInfo,
             email,
             address,
-            birthDate
+            birthDate,
+            new ArrayList<>(states),
+            version,
+            deleted
         );
     }
 

@@ -1,9 +1,9 @@
 package crow.teomant.delivery.meal.web;
 
-import crow.teomant.delivery.meal.model.Meal;
 import crow.teomant.delivery.meal.service.MealCreate;
 import crow.teomant.delivery.meal.service.MealService;
 import crow.teomant.delivery.meal.service.MealUpdate;
+import crow.teomant.delivery.meal.service.MealValue;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class MealController {
     private final MealService mealService;
 
     @GetMapping
-    public List<Meal> getAll(@RequestParam(required = false) Integer restaurantId) {
+    public List<MealValue> getAll(@RequestParam(required = false) Integer restaurantId) {
         if (Objects.nonNull(restaurantId)) {
             return mealService.getByRestaurantId(restaurantId);
         }
@@ -32,17 +32,17 @@ public class MealController {
     }
 
     @GetMapping("/{id}")
-    public Meal get(@PathVariable Integer id) {
+    public MealValue get(@PathVariable Integer id) {
         return mealService.get(id);
     }
 
     @PostMapping
-    public Meal create(@RequestBody MealCreate create) {
+    public MealValue create(@RequestBody MealCreate create) {
         return mealService.create(create);
     }
 
     @PutMapping
-    public Meal update(@RequestBody MealUpdate update) {
+    public MealValue update(@RequestBody MealUpdate update) {
         return mealService.update(update);
     }
 

@@ -1,9 +1,9 @@
 package crow.teomant.delivery.user.web;
 
-import crow.teomant.delivery.user.model.User;
 import crow.teomant.delivery.user.service.UserCreate;
 import crow.teomant.delivery.user.service.UserService;
 import crow.teomant.delivery.user.service.UserUpdate;
+import crow.teomant.delivery.user.service.UserValue;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,22 +22,22 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public List<User> getAll() {
+    public List<UserValue> getAll() {
         return userService.getAll();
     }
 
     @GetMapping("/{id}")
-    public User get(@PathVariable Integer id) {
+    public UserValue get(@PathVariable Integer id) {
         return userService.get(id);
     }
 
     @PostMapping
-    public User create(@RequestBody UserCreate create) {
+    public UserValue create(@RequestBody UserCreate create) {
         return userService.create(create);
     }
 
     @PutMapping
-    public User update(@RequestBody UserUpdate update) {
+    public UserValue update(@RequestBody UserUpdate update) {
         return userService.update(update);
     }
 

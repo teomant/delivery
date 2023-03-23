@@ -27,19 +27,18 @@ public class RestaurantRepositoryAdapter implements RestaurantRepository {
     public Restaurant save(Restaurant restaurant) {
         RestaurantEntity restaurantEntity = Optional.ofNullable(restaurant.getId()).map(jpaRepository::getReferenceById)
             .orElse(new RestaurantEntity(null, restaurant.getContactInfo(), restaurant.getName(), restaurant.getInfo(),
-                restaurant.getAddress(), restaurant.getOpeningHours()));
+                restaurant.getAddress(), restaurant.getOpeningHours(), restaurant.getStates(), restaurant.getVersion(),
+                restaurant.getDeleted()));
 
         restaurantEntity.setName(restaurant.getName());
         restaurantEntity.setInfo(restaurant.getInfo());
         restaurantEntity.setContactInfo(restaurant.getContactInfo());
         restaurantEntity.setAddress(restaurant.getAddress());
         restaurantEntity.setOpeningHours(restaurant.getOpeningHours());
+        restaurantEntity.setStates(restaurant.getStates());
+        restaurantEntity.setVersion(restaurant.getVersion());
+        restaurantEntity.setDeleted(restaurant.getDeleted());
 
         return jpaRepository.save(restaurantEntity).toModel();
-    }
-
-    @Override
-    public void delete(Integer id) {
-        jpaRepository.deleteById(id);
     }
 }

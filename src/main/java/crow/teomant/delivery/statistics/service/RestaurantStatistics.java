@@ -2,7 +2,7 @@ package crow.teomant.delivery.statistics.service;
 
 import crow.teomant.delivery.order.service.OrderValue;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record RestaurantStatistics(
@@ -28,7 +28,7 @@ public record RestaurantStatistics(
     public record TopBySpend(Integer id, BigDecimal summ) {
     }
 
-    public record TopByPrice(Integer id, BigDecimal summ, LocalDate date) {
+    public record TopByPrice(Integer id, BigDecimal summ, LocalDateTime version) {
     }
 }
 

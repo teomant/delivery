@@ -8,9 +8,7 @@ import crow.teomant.delivery.restaurant.model.Restaurant;
 import crow.teomant.delivery.restaurant.model.RestaurantRepository;
 import crow.teomant.delivery.user.model.User;
 import crow.teomant.delivery.user.model.UserRepository;
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -39,63 +37,37 @@ public class OrderService {
         Optional<Restaurant> restaurant = restaurantRepository.findById(saved.getRestaurantId());
         Optional<User> user = userRepository.findById(saved.getUserId());
         List<Meal> mealsInOrder = mealRepository.findByIdIn(
-            saved.getState().getItems().stream().map(Order.ItemState::getId).collect(Collectors.toList())
+            saved.getCurrentState().getItems().stream().map(Item::getId).collect(Collectors.toList())
         );
 
         return new OrderValue(
             saved.getId(),
             saved.getRestaurantId(),
             saved.getUserId(),
-            saved.getCreated(),
-            saved.getApproved(),
-            saved.getDelivered(),
-            saved.getStatus(),
-            new IsActual<>(
-                saved.getState().getRestaurantName(),
-                restaurant.map(Restaurant::getName)
-                    .map(name -> Objects.equals(name, saved.getState().getRestaurantName()))
+            saved.getCurrentState(),
+            new Sugestion<>(
+                restaurant.map(r -> r.getStateAt(saved.getCurrentState().getVersion())).orElse(null),
+                restaurant.map(Restaurant::getCurrentState).orElse(null),
+                restaurant.map(Restaurant::getCurrentState)
+                    .map(state -> state.getVersion().isBefore(saved.getCurrentState().getVersion()))
                     .orElse(false)
             ),
-            new IsActual<>(
-                saved.getState().getRestaurantAddress(),
-                restaurant.map(Restaurant::getAddress)
-                    .map(name -> Objects.equals(name, saved.getState().getRestaurantName()))
+            new Sugestion<>(
+                user.map(r -> r.getStateAt(saved.getCurrentState().getVersion())).orElse(null),
+                user.map(User::getCurrentState).orElse(null),
+                user.map(User::getCurrentState)
+                    .map(state -> state.getVersion().isBefore(saved.getCurrentState().getVersion()))
                     .orElse(false)
             ),
-            new IsActual<>(
-                saved.getState().getUserName(),
-                user.map(User::getName)
-                    .map(name -> Objects.equals(name, saved.getState().getUserName()))
-                    .orElse(false)
-            ),
-            new IsActual<>(
-                saved.getState().getUserAddress(),
-                user.map(User::getAddress)
-                    .map(address -> Objects.equals(address, saved.getState().getUserName()))
-                    .orElse(false)
-            ),
-            saved.getState().getItems().stream()
-                .map(item -> new IsActual<>(
-                        item,
-                        isActualItem(mealsInOrder, item)
-                    )
-                )
+            mealsInOrder.stream()
+                .map(meal -> new Sugestion<>(
+                    meal.getStateAt(saved.getCurrentState().getVersion()),
+                    meal.getCurrentState(),
+                    Optional.ofNullable(meal.getCurrentState())
+                        .map(state -> state.getVersion().isBefore(saved.getCurrentState().getVersion()))
+                        .orElse(false)
+                ))
                 .collect(Collectors.toList())
-        );
-    }
-
-    private boolean isActualItem(List<Meal> mealsInOrder, Order.ItemState item) {
-        return mealsInOrder.stream().anyMatch(meal ->
-            item.getId().equals(meal.getId())
-                && item.getName().equals(meal.getName())
-                && item.getPrice().compareTo(meal.getPrice()) == 0
-                && item.getAddons().stream().allMatch(addon ->
-                meal.getAddons().stream().anyMatch(existing ->
-                    existing.getName().equals(addon.getName())
-                        && existing.getLabel().equals(addon.getLabel())
-                        && existing.getPrice().compareTo(addon.getPrice()) == 0
-                )
-            )
         );
     }
 
@@ -114,9 +86,11 @@ public class OrderService {
     public OrderValue create(OrderCreate create) {
 
         Restaurant restaurant = restaurantRepository.findById(create.getRestaurantId())
+            .filter(it -> !it.getDeleted())
             .orElseThrow(() -> new IllegalArgumentException("No restaurant with id " + create.getRestaurantId()));
 
         User user = userRepository.findById(create.getUserId())
+            .filter(it -> !it.getDeleted())
             .orElseThrow(() -> new IllegalArgumentException("No user with id " + create.getUserId()));
 
         List<Meal> mealsInOrder = mealRepository.findByIdIn(
@@ -127,37 +101,20 @@ public class OrderService {
 
         //any other validations
 
-        Order saved = orderRepository.save(
-            new Order(
-                create.getRestaurantId(),
-                create.getUserId(),
-                new Order.State(
-                    restaurant.getId(),
-                    restaurant.getName(),
-                    restaurant.getAddress(),
-                    user.getId(),
-                    user.getName(),
-                    user.getAddress(),
-                    create.getItems().stream().map(item -> getItemState(mealsInOrder, item))
-                        .collect(Collectors.toList()),
-                    LocalDate.now()
-                )
-            )
-        );
+        Order saved = orderRepository.save(new Order(create.getRestaurantId(), create.getUserId(), create.getItems()));
 
         return new OrderValue(
             saved.getId(),
             saved.getRestaurantId(),
             saved.getUserId(),
-            saved.getCreated(),
-            saved.getApproved(),
-            saved.getDelivered(),
-            saved.getStatus(),
-            new IsActual<>(saved.getState().getRestaurantName(), true),
-            new IsActual<>(saved.getState().getRestaurantAddress(), true),
-            new IsActual<>(saved.getState().getUserName(), true),
-            new IsActual<>(saved.getState().getUserAddress(), true),
-            saved.getState().getItems().stream().map(item -> new IsActual<>(item, true))
+            saved.getCurrentState(),
+            new Sugestion<>(restaurant.getCurrentState(),
+                restaurant.getCurrentState(),
+                restaurant.getCurrentState().getVersion().isBefore(saved.getCurrentState().getVersion())),
+            new Sugestion<>(user.getCurrentState(),
+                user.getCurrentState(),
+                user.getCurrentState().getVersion().isBefore(saved.getCurrentState().getVersion())),
+            mealsInOrder.stream().map(meal -> new Sugestion<>(meal.getCurrentState(), meal.getCurrentState(), true))
                 .collect(Collectors.toList())
         );
     }
@@ -179,22 +136,6 @@ public class OrderService {
         });
     }
 
-    private Order.ItemState getItemState(List<Meal> mealsInOrder, Item item) {
-        Meal meal = mealsInOrder.stream().filter(it -> it.getId().equals(item.getId())).findAny().get();
-
-        return new Order.ItemState(
-            meal.getId(),
-            meal.getName(),
-            meal.getPrice(),
-            item.getAddons().stream().map(addon -> {
-                Meal.Addon found =
-                    meal.getAddons().stream().filter(it -> it.getName().equals(addon)).findAny().get();
-                return new Order.AddonState(found.getName(), found.getLabel(), found.getPrice(), LocalDate.now());
-            }).collect(Collectors.toList()),
-            LocalDate.now()
-        );
-    }
-
     public OrderValue update(OrderUpdate update) {
         Order order = orderRepository.findById(update.getId())
             .orElseThrow(() -> new IllegalArgumentException("No order with id " + update.getId()));
@@ -204,9 +145,11 @@ public class OrderService {
         );
 
         Restaurant restaurant = restaurantRepository.findById(order.getRestaurantId())
+            .filter(it -> !it.getDeleted())
             .orElseThrow(() -> new IllegalArgumentException("No more restaurant with id " + order.getRestaurantId()));
 
         User user = userRepository.findById(order.getUserId())
+            .filter(it -> !it.getDeleted())
             .orElseThrow(() -> new IllegalArgumentException("No more user with id " + order.getUserId()));
 
 
@@ -218,17 +161,7 @@ public class OrderService {
         //any validations
 
         order.update(
-            new Order.State(
-                restaurant.getId(),
-                restaurant.getName(),
-                restaurant.getAddress(),
-                user.getId(),
-                user.getName(),
-                user.getAddress(),
-                update.getItems().stream().map(item -> getItemState(mealsInOrder, item))
-                    .collect(Collectors.toList()),
-                LocalDate.now()
-            )
+            update.getItems()
         );
 
         Order saved = orderRepository.save(order);
@@ -236,15 +169,14 @@ public class OrderService {
             saved.getId(),
             saved.getRestaurantId(),
             saved.getUserId(),
-            saved.getCreated(),
-            saved.getApproved(),
-            saved.getDelivered(),
-            saved.getStatus(),
-            new IsActual<>(saved.getState().getRestaurantName(), true),
-            new IsActual<>(saved.getState().getRestaurantAddress(), true),
-            new IsActual<>(saved.getState().getUserName(), true),
-            new IsActual<>(saved.getState().getUserAddress(), true),
-            saved.getState().getItems().stream().map(item -> new IsActual<>(item, true))
+            saved.getCurrentState(),
+            new Sugestion<>(restaurant.getCurrentState(),
+                restaurant.getCurrentState(),
+                restaurant.getCurrentState().getVersion().isBefore(saved.getCurrentState().getVersion())),
+            new Sugestion<>(user.getCurrentState(),
+                user.getCurrentState(),
+                user.getCurrentState().getVersion().isBefore(saved.getCurrentState().getVersion())),
+            mealsInOrder.stream().map(meal -> new Sugestion<>(meal.getCurrentState(), meal.getCurrentState(), true))
                 .collect(Collectors.toList())
         );
     }
@@ -281,12 +213,5 @@ public class OrderService {
         order.delivered();
 
         return mapValue(orderRepository.save(order));
-    }
-
-    @Transactional
-    public void delete(Integer id) {
-        //any validations
-
-        mealRepository.delete(id);
     }
 }

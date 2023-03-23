@@ -6,6 +6,9 @@ CREATE TABLE IF NOT EXISTS `users` (
     address VARCHAR(255),
     contact_info VARCHAR(255),
     birth_date DATE,
+    states LONG VARCHAR,
+    version TIMESTAMP,
+    deleted BOOLEAN,
     PRIMARY KEY (id)
 );
 
@@ -16,6 +19,9 @@ CREATE TABLE IF NOT EXISTS restautants (
     info VARCHAR(255),
     address VARCHAR(255),
     opening_hours LONG VARCHAR,
+    states LONG VARCHAR,
+    version TIMESTAMP,
+    deleted BOOLEAN,
     PRIMARY KEY (id)
 );
 
@@ -26,6 +32,9 @@ CREATE TABLE IF NOT EXISTS meals (
     restaurant_id INT,
     price DECIMAL,
     addons LONG VARCHAR,
+    states LONG VARCHAR,
+    version TIMESTAMP,
+    deleted BOOLEAN,
     PRIMARY KEY (id)
 );
 
@@ -37,6 +46,8 @@ CREATE TABLE IF NOT EXISTS orders (
     approved DATE,
     delivered DATE,
     status VARCHAR(255),
-    state LONG VARCHAR,
+    items LONG VARCHAR,
+    states LONG VARCHAR,
+    version TIMESTAMP,
     PRIMARY KEY (id)
 );

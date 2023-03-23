@@ -9,6 +9,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -42,6 +44,16 @@ public class MealEntity {
     @Convert(converter = AddonsConverter.class)
     private List<Meal.Addon> addons;
 
+    @Column(name = "states")
+    @Convert(converter = MealStateConverter.class)
+    private List<Meal.State> states;
+
+    @Column(name = "version")
+    private LocalDateTime version;
+
+    @Column(name = "deleted")
+    private Boolean deleted;
+
     public Meal toModel() {
         return new Meal(
             id,
@@ -49,7 +61,10 @@ public class MealEntity {
             name,
             info,
             price,
-            addons
+            addons,
+            new ArrayList<>(states),
+            version,
+            deleted
         );
     }
 

@@ -8,6 +8,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -41,6 +43,16 @@ public class RestaurantEntity {
     @Convert(converter = OpeningHoursConverter.class)
     private List<Restaurant.OpeningHours> openingHours;
 
+    @Column(name = "states")
+    @Convert(converter = RestaurantStatesConverter.class)
+    private List<Restaurant.State> states;
+
+    @Column(name = "version")
+    private LocalDateTime version;
+
+    @Column(name = "deleted")
+    private Boolean deleted;
+
     public Restaurant toModel() {
         return new Restaurant(
             id,
@@ -48,7 +60,10 @@ public class RestaurantEntity {
             contactInfo,
             info,
             address,
-            openingHours
+            openingHours,
+            new ArrayList<>(states),
+            version,
+            deleted
         );
     }
 

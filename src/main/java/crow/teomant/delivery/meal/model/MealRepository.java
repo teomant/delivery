@@ -13,8 +13,4 @@ public interface MealRepository {
     List<Meal> getAll();
 
     Meal save(Meal meal);
-
-    void delete(Integer id);
-
-    void deleteByRestaurantId(Integer id);
 }

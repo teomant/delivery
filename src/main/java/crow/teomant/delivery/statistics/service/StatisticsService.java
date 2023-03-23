@@ -1,9 +1,10 @@
 package crow.teomant.delivery.statistics.service;
 
+import crow.teomant.delivery.meal.model.Meal;
 import crow.teomant.delivery.order.model.Order;
-import crow.teomant.delivery.order.service.IsActual;
 import crow.teomant.delivery.order.service.OrderService;
 import crow.teomant.delivery.order.service.OrderValue;
+import crow.teomant.delivery.order.service.Sugestion;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Comparator;
@@ -20,16 +21,16 @@ public class StatisticsService {
 
     public RestaurantStatistics getStatistics(StatisticsRequest request) {
         List<OrderValue> orders = orderService.getByRestaurantId(request.getId()).stream()
-            .filter(order -> order.getDelivered().isAfter(request.getFrom())
-                && order.getDelivered().isBefore(request.getTo()))
+            .filter(order -> order.getState().getCreated().isAfter(request.getFrom())
+                && order.getState().getCreated().isBefore(request.getTo()))
             .toList();
 
         return new RestaurantStatistics(
-            orders.stream().filter(order -> order.getStatus() == Order.Status.DRAFT).count(),
-            orders.stream().filter(order -> order.getStatus() == Order.Status.PROCESSING).count(),
-            orders.stream().filter(order -> order.getStatus() == Order.Status.DELIVERED).count(),
+            orders.stream().filter(order -> order.getState().getStatus() == Order.Status.DRAFT).count(),
+            orders.stream().filter(order -> order.getState().getStatus() == Order.Status.PROCESSING).count(),
+            orders.stream().filter(order -> order.getState().getStatus() == Order.Status.DELIVERED).count(),
             getDeliveredStatistics(orders.stream()
-                .filter(order -> order.getStatus() == Order.Status.DELIVERED).toList())
+                .filter(order -> order.getState().getStatus() == Order.Status.DELIVERED).toList())
         );
     }
 
@@ -42,20 +43,20 @@ public class StatisticsService {
                 .limit(5)
                 .map(entry -> new RestaurantStatistics.TopByNumber(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList()),
-            delivered.stream().map(OrderValue::getItems)
+            delivered.stream().map(OrderValue::getMeals)
                 .flatMap(Collection::stream)
-                .map(IsActual::getValue)
-                .collect(Collectors.groupingBy(Order.ItemState::getId, Collectors.counting()))
+                .map(Sugestion::getCurrent)
+                .collect(Collectors.groupingBy(Meal.State::getId, Collectors.counting()))
                 .entrySet()
                 .stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .limit(5)
                 .map(entry -> new RestaurantStatistics.TopByNumber(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList()),
-            delivered.stream().map(OrderValue::getItems)
+            delivered.stream().map(OrderValue::getMeals)
                 .flatMap(Collection::stream)
-                .map(IsActual::getValue)
-                .sorted(Comparator.comparing(Order.ItemState::getPrice, Comparator.reverseOrder()))
-                .map(item -> new RestaurantStatistics.TopByPrice(item.getId(), item.getPrice(), item.getDate()))
+                .map(Sugestion::getCurrent)
+                .sorted(Comparator.comparing(Meal.State::getPrice, Comparator.reverseOrder()))
+                .map(item -> new RestaurantStatistics.TopByPrice(item.getId(), item.getPrice(), item.getVersion()))
                 .distinct()
                 .limit(5)
                 .collect(Collectors.toList()),
@@ -65,19 +66,13 @@ public class StatisticsService {
                 .map(entry -> new RestaurantStatistics.TopBySpend(
                     entry.getKey(),
                     entry.getValue().stream()
-                        .map(OrderValue::getItems)
-                        .flatMap(Collection::stream)
-                        .map(IsActual::getValue)
-                        .map(Order.ItemState::getTotal)
+                        .map(OrderValue::getTotal)
                         .reduce(BigDecimal.ZERO, BigDecimal::add)
                 ))
                 .sorted(Comparator.comparing(RestaurantStatistics.TopBySpend::summ, Comparator.reverseOrder()))
                 .limit(5)
                 .collect(Collectors.toList()),
-            delivered.stream().map(OrderValue::getItems)
-                .flatMap(Collection::stream)
-                .map(IsActual::getValue)
-                .map(Order.ItemState::getTotal)
+            delivered.stream().map(OrderValue::getTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
         );
     }
