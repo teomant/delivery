@@ -3,6 +3,7 @@ package crow.teomant.delivery.meal.service;
 import crow.teomant.delivery.meal.model.Meal;
 import crow.teomant.delivery.meal.model.MealRepository;
 import crow.teomant.delivery.restaurant.model.RestaurantRepository;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -61,6 +62,11 @@ public class MealService {
             throw new IllegalArgumentException("Duplicates in addons");
         }
 
+        if (create.getPrice().compareTo(BigDecimal.ZERO) < 0
+            || create.getAddons().stream().anyMatch(addon -> addon.getPrice().compareTo(BigDecimal.ZERO) < 0)) {
+            throw new IllegalArgumentException("Wrong price");
+        }
+
         //any other validations
 
         return new MealValue(
@@ -90,6 +96,11 @@ public class MealService {
         }
         if (meal.getDeleted()) {
             throw new IllegalArgumentException("No meal with id " + update.getId());
+        }
+
+        if (update.getPrice().compareTo(BigDecimal.ZERO) < 0
+            || update.getAddons().stream().anyMatch(addon -> addon.getPrice().compareTo(BigDecimal.ZERO) < 0)) {
+            throw new IllegalArgumentException("Wrong price");
         }
 
         //any validations
