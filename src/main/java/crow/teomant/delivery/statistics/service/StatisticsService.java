@@ -43,7 +43,7 @@ public class StatisticsService {
                 .limit(5)
                 .map(entry -> new RestaurantStatistics.TopByNumber(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList()),
-            delivered.stream().map(OrderValue::getMeals)
+            delivered.stream().map(OrderValue::getMetadata).map(OrderValue.Metadata::meals)
                 .flatMap(Collection::stream)
                 .map(Sugestion::getCurrent)
                 .collect(Collectors.groupingBy(Meal.State::getId, Collectors.counting()))
@@ -52,7 +52,7 @@ public class StatisticsService {
                 .limit(5)
                 .map(entry -> new RestaurantStatistics.TopByNumber(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList()),
-            delivered.stream().map(OrderValue::getMeals)
+            delivered.stream().map(OrderValue::getMetadata).map(OrderValue.Metadata::meals)
                 .flatMap(Collection::stream)
                 .map(Sugestion::getCurrent)
                 .sorted(Comparator.comparing(Meal.State::getPrice, Comparator.reverseOrder()))

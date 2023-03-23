@@ -94,6 +94,7 @@ public class MealService {
             .values().stream().anyMatch(value -> value > 1)) {
             throw new IllegalArgumentException("Duplicates in addons");
         }
+
         if (meal.getDeleted()) {
             throw new IllegalArgumentException("No meal with id " + update.getId());
         }

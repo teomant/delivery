@@ -26,9 +26,7 @@ public class UserService {
         }
         //any validations
         
-        return new UserValue(
-            user
-        );
+        return new UserValue(user);
     }
 
     public List<UserValue> getAll() {

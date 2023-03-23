@@ -15,20 +15,19 @@ public class OrderValue {
     private final Integer id;
     private final Integer restaurantId;
     private final Integer userId;
-    private Order.State state;
-
-    private Sugestion<Restaurant.State> restaurant;
-    private Sugestion<User.State> user;
-    private List<Sugestion<Meal.State>> meals;
+    private final Order.State state;
+    private final Metadata metadata;
 
     public Boolean isActual() {
-        return restaurant.getActual() && user.getActual() && meals.stream().allMatch(Sugestion::getActual);
+        return metadata.restaurant.getActual()
+            && metadata.user.getActual()
+            && metadata.meals.stream().allMatch(Sugestion::getActual);
     }
 
     public BigDecimal getTotal() {
         return state.getItems().stream()
             .map(item -> {
-                    Meal.State current = meals.stream()
+                    Meal.State current = metadata.meals.stream()
                         .filter(meal -> meal.getCurrent().getId().equals(item.getId()))
                         .findAny().get().getCurrent();
 
@@ -41,5 +40,9 @@ public class OrderValue {
                         .add(current.getPrice());
                 }
             ).reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public record Metadata(Sugestion<Restaurant.State> restaurant, Sugestion<User.State> user,
+                           List<Sugestion<Meal.State>> meals) {
     }
 }

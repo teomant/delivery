@@ -58,7 +58,6 @@ public class Restaurant {
     public static class OpeningHours {
         @NonNull
         DayOfWeek dayOfWeek;
-        //don't do so in production. Use separate dto for web
         @Schema(type = "string", pattern = "HH:MM", example = "10:00")
         @NonNull
         LocalTime from;

@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -45,29 +44,31 @@ public class OrderService {
             saved.getRestaurantId(),
             saved.getUserId(),
             saved.getCurrentState(),
-            new Sugestion<>(
-                restaurant.map(r -> r.getStateAt(saved.getCurrentState().getVersion())).orElse(null),
-                restaurant.map(Restaurant::getCurrentState).orElse(null),
-                restaurant.map(Restaurant::getCurrentState)
-                    .map(state -> state.getVersion().isBefore(saved.getCurrentState().getVersion()))
-                    .orElse(false)
-            ),
-            new Sugestion<>(
-                user.map(r -> r.getStateAt(saved.getCurrentState().getVersion())).orElse(null),
-                user.map(User::getCurrentState).orElse(null),
-                user.map(User::getCurrentState)
-                    .map(state -> state.getVersion().isBefore(saved.getCurrentState().getVersion()))
-                    .orElse(false)
-            ),
-            mealsInOrder.stream()
-                .map(meal -> new Sugestion<>(
-                    meal.getStateAt(saved.getCurrentState().getVersion()),
-                    meal.getCurrentState(),
-                    Optional.ofNullable(meal.getCurrentState())
+            new OrderValue.Metadata(
+                new Sugestion<>(
+                    restaurant.map(r -> r.getStateAt(saved.getCurrentState().getVersion())).orElse(null),
+                    restaurant.map(Restaurant::getCurrentState).orElse(null),
+                    restaurant.map(Restaurant::getCurrentState)
                         .map(state -> state.getVersion().isBefore(saved.getCurrentState().getVersion()))
                         .orElse(false)
-                ))
-                .collect(Collectors.toList())
+                ),
+                new Sugestion<>(
+                    user.map(r -> r.getStateAt(saved.getCurrentState().getVersion())).orElse(null),
+                    user.map(User::getCurrentState).orElse(null),
+                    user.map(User::getCurrentState)
+                        .map(state -> state.getVersion().isBefore(saved.getCurrentState().getVersion()))
+                        .orElse(false)
+                ),
+                mealsInOrder.stream()
+                    .map(meal -> new Sugestion<>(
+                        meal.getStateAt(saved.getCurrentState().getVersion()),
+                        meal.getCurrentState(),
+                        Optional.ofNullable(meal.getCurrentState())
+                            .map(state -> state.getVersion().isBefore(saved.getCurrentState().getVersion()))
+                            .orElse(false)
+                    ))
+                    .collect(Collectors.toList())
+            )
         );
     }
 
@@ -108,14 +109,16 @@ public class OrderService {
             saved.getRestaurantId(),
             saved.getUserId(),
             saved.getCurrentState(),
-            new Sugestion<>(restaurant.getCurrentState(),
-                restaurant.getCurrentState(),
-                restaurant.getCurrentState().getVersion().isBefore(saved.getCurrentState().getVersion())),
-            new Sugestion<>(user.getCurrentState(),
-                user.getCurrentState(),
-                user.getCurrentState().getVersion().isBefore(saved.getCurrentState().getVersion())),
-            mealsInOrder.stream().map(meal -> new Sugestion<>(meal.getCurrentState(), meal.getCurrentState(), true))
-                .collect(Collectors.toList())
+            new OrderValue.Metadata(
+                new Sugestion<>(restaurant.getCurrentState(),
+                    restaurant.getCurrentState(),
+                    restaurant.getCurrentState().getVersion().isBefore(saved.getCurrentState().getVersion())),
+                new Sugestion<>(user.getCurrentState(),
+                    user.getCurrentState(),
+                    user.getCurrentState().getVersion().isBefore(saved.getCurrentState().getVersion())),
+                mealsInOrder.stream().map(meal -> new Sugestion<>(meal.getCurrentState(), meal.getCurrentState(), true))
+                    .collect(Collectors.toList())
+            )
         );
     }
 
@@ -160,9 +163,7 @@ public class OrderService {
         validateItems(mealsInOrder, update.getItems(), restaurant.getId());
         //any validations
 
-        order.update(
-            update.getItems()
-        );
+        order.update(update.getItems());
 
         Order saved = orderRepository.save(order);
         return new OrderValue(
@@ -170,14 +171,16 @@ public class OrderService {
             saved.getRestaurantId(),
             saved.getUserId(),
             saved.getCurrentState(),
-            new Sugestion<>(restaurant.getCurrentState(),
-                restaurant.getCurrentState(),
-                restaurant.getCurrentState().getVersion().isBefore(saved.getCurrentState().getVersion())),
-            new Sugestion<>(user.getCurrentState(),
-                user.getCurrentState(),
-                user.getCurrentState().getVersion().isBefore(saved.getCurrentState().getVersion())),
-            mealsInOrder.stream().map(meal -> new Sugestion<>(meal.getCurrentState(), meal.getCurrentState(), true))
-                .collect(Collectors.toList())
+            new OrderValue.Metadata(
+                new Sugestion<>(restaurant.getCurrentState(),
+                    restaurant.getCurrentState(),
+                    restaurant.getCurrentState().getVersion().isBefore(saved.getCurrentState().getVersion())),
+                new Sugestion<>(user.getCurrentState(),
+                    user.getCurrentState(),
+                    user.getCurrentState().getVersion().isBefore(saved.getCurrentState().getVersion())),
+                mealsInOrder.stream().map(meal -> new Sugestion<>(meal.getCurrentState(), meal.getCurrentState(), true))
+                    .collect(Collectors.toList())
+            )
         );
     }
 
@@ -194,7 +197,7 @@ public class OrderService {
         if (!value.isActual()) {
             throw new IllegalStateException("Order outdated");
         }
-        //any validations
+        //any validations, for example, that restaurant works
 
         order.approved();
 
