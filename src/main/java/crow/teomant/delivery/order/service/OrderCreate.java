@@ -1,6 +1,5 @@
 package crow.teomant.delivery.order.service;
 
-import crow.teomant.delivery.order.model.Order;
 import java.util.List;
 import lombok.Data;
 
@@ -8,5 +7,5 @@ import lombok.Data;
 public class OrderCreate {
     private final Integer restaurantId;
     private final Integer userId;
-    private List<Order.Item> items;
+    private List<Item> items;
 }

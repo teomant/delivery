@@ -23,6 +23,7 @@ public class OpeningHoursConverter implements AttributeConverter<List<Restaurant
     @Override
     @SneakyThrows
     public List<Restaurant.OpeningHours> convertToEntityAttribute(String dbData) {
-        return objectMapper.readValue(dbData, new TypeReference<List<Restaurant.OpeningHours>>() {});
+        return objectMapper.readValue(dbData, new TypeReference<List<Restaurant.OpeningHours>>() {
+        });
     }
 }

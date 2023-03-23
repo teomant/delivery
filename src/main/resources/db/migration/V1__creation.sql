@@ -37,7 +37,6 @@ CREATE TABLE IF NOT EXISTS orders (
     approved DATE,
     delivered DATE,
     status VARCHAR(255),
-    items LONG VARCHAR,
     state LONG VARCHAR,
     PRIMARY KEY (id)
 );

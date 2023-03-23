@@ -19,24 +19,21 @@ public class Order {
     private LocalDate approved;
     private LocalDate delivered;
     private Status status;
-    private List<Item> items;
     private State state;
 
-    public Order(Integer restaurantId, Integer userId, List<Item> items, State state) {
+    public Order(Integer restaurantId, Integer userId, State state) {
         this.id = null;
         this.restaurantId = restaurantId;
         this.userId = userId;
-        this.items = items;
         this.state = state;
         this.status = Status.DRAFT;
         this.created = LocalDate.now();
     }
 
-    public void update(List<Item> items, State state) {
+    public void update(State state) {
         if (this.status != Status.DRAFT) {
             throw new IllegalStateException("You can modify only draft order");
         }
-        this.items = items;
         this.state = state;
     }
 
@@ -65,14 +62,6 @@ public class Order {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class Item {
-        Integer id;
-        List<String> addons;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
     @EqualsAndHashCode
     public static class State {
         private Integer restaurantId;
@@ -85,10 +74,6 @@ public class Order {
 
         private List<ItemState> items;
         private LocalDate date;
-
-        public BigDecimal getTotal() {
-            return items.stream().map(ItemState::getTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
-        }
     }
 
     @Data

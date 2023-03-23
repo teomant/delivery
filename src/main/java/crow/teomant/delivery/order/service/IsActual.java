@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class IsActual<T>{
+public class IsActual<T> {
     private final T value;
     private final Boolean actual;
 }

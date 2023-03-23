@@ -39,7 +39,7 @@ public class OrderService {
         Optional<Restaurant> restaurant = restaurantRepository.findById(saved.getRestaurantId());
         Optional<User> user = userRepository.findById(saved.getUserId());
         List<Meal> mealsInOrder = mealRepository.findByIdIn(
-            saved.getItems().stream().map(Order.Item::getId).collect(Collectors.toList())
+            saved.getState().getItems().stream().map(Order.ItemState::getId).collect(Collectors.toList())
         );
 
         return new OrderValue(
@@ -120,7 +120,7 @@ public class OrderService {
             .orElseThrow(() -> new IllegalArgumentException("No user with id " + create.getUserId()));
 
         List<Meal> mealsInOrder = mealRepository.findByIdIn(
-            create.getItems().stream().map(Order.Item::getId).collect(Collectors.toList())
+            create.getItems().stream().map(Item::getId).collect(Collectors.toList())
         );
 
         validateItems(mealsInOrder, create.getItems(), restaurant.getId());
@@ -131,7 +131,6 @@ public class OrderService {
             new Order(
                 create.getRestaurantId(),
                 create.getUserId(),
-                create.getItems(),
                 new Order.State(
                     restaurant.getId(),
                     restaurant.getName(),
@@ -163,7 +162,7 @@ public class OrderService {
         );
     }
 
-    private void validateItems(List<Meal> mealsInOrder, List<Order.Item> items, Integer id) {
+    private void validateItems(List<Meal> mealsInOrder, List<Item> items, Integer id) {
         if (mealsInOrder.stream().anyMatch(meal -> !meal.getRestaurantId().equals(id))) {
             throw new IllegalArgumentException("Wrong restaurant in one of meals");
         }
@@ -180,7 +179,7 @@ public class OrderService {
         });
     }
 
-    private Order.ItemState getItemState(List<Meal> mealsInOrder, Order.Item item) {
+    private Order.ItemState getItemState(List<Meal> mealsInOrder, Item item) {
         Meal meal = mealsInOrder.stream().filter(it -> it.getId().equals(item.getId())).findAny().get();
 
         return new Order.ItemState(
@@ -201,7 +200,7 @@ public class OrderService {
             .orElseThrow(() -> new IllegalArgumentException("No order with id " + update.getId()));
 
         List<Meal> mealsInOrder = mealRepository.findByIdIn(
-            update.getItems().stream().map(Order.Item::getId).collect(Collectors.toList())
+            update.getItems().stream().map(Item::getId).collect(Collectors.toList())
         );
 
         Restaurant restaurant = restaurantRepository.findById(order.getRestaurantId())
@@ -219,7 +218,6 @@ public class OrderService {
         //any validations
 
         order.update(
-            update.getItems(),
             new Order.State(
                 restaurant.getId(),
                 restaurant.getName(),

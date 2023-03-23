@@ -6,13 +6,21 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record RestaurantStatistics(
-    List<OrderValue> orders,
-    List<TopByNumber> topUsersByNumberOfOrders,
-    List<TopByNumber> topMealsByNumberOfOrders,
-    List<TopByPrice> mostExpensiveMealsInOrders,
-    List<TopBySpend> spendMostMoney,
-    BigDecimal totalForPeriod
+    Long draftOrders,
+    Long processingOrders,
+    Long deliveredOrders,
+    DeliveredStatistics delivered
 ) {
+
+    public record DeliveredStatistics(
+        List<OrderValue> orders,
+        List<TopByNumber> topUsersByNumberOfOrders,
+        List<TopByNumber> topMealsByNumberOfOrders,
+        List<TopByPrice> mostExpensiveMealsInOrders,
+        List<TopBySpend> spendMostMoney,
+        BigDecimal totalForPeriod
+    ) {
+    }
 
     public record TopByNumber(Integer id, Long number) {
     }

@@ -20,20 +20,29 @@ public class StatisticsService {
 
     public RestaurantStatistics getStatistics(StatisticsRequest request) {
         List<OrderValue> orders = orderService.getByRestaurantId(request.getId()).stream()
-            .filter(order -> order.getStatus() == Order.Status.DELIVERED
-                && order.getDelivered().isAfter(request.getFrom())
+            .filter(order -> order.getDelivered().isAfter(request.getFrom())
                 && order.getDelivered().isBefore(request.getTo()))
-            .collect(Collectors.toList());
+            .toList();
 
         return new RestaurantStatistics(
-            orders,
-            orders.stream().collect(Collectors.groupingBy(OrderValue::getUserId, Collectors.counting()))
+            orders.stream().filter(order -> order.getStatus() == Order.Status.DRAFT).count(),
+            orders.stream().filter(order -> order.getStatus() == Order.Status.PROCESSING).count(),
+            orders.stream().filter(order -> order.getStatus() == Order.Status.DELIVERED).count(),
+            getDeliveredStatistics(orders.stream()
+                .filter(order -> order.getStatus() == Order.Status.DELIVERED).toList())
+        );
+    }
+
+    private RestaurantStatistics.DeliveredStatistics getDeliveredStatistics(List<OrderValue> delivered) {
+        return new RestaurantStatistics.DeliveredStatistics(
+            delivered,
+            delivered.stream().collect(Collectors.groupingBy(OrderValue::getUserId, Collectors.counting()))
                 .entrySet()
                 .stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .limit(5)
                 .map(entry -> new RestaurantStatistics.TopByNumber(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList()),
-            orders.stream().map(OrderValue::getItems)
+            delivered.stream().map(OrderValue::getItems)
                 .flatMap(Collection::stream)
                 .map(IsActual::getValue)
                 .collect(Collectors.groupingBy(Order.ItemState::getId, Collectors.counting()))
@@ -42,14 +51,15 @@ public class StatisticsService {
                 .limit(5)
                 .map(entry -> new RestaurantStatistics.TopByNumber(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList()),
-            orders.stream().map(OrderValue::getItems)
+            delivered.stream().map(OrderValue::getItems)
                 .flatMap(Collection::stream)
                 .map(IsActual::getValue)
                 .sorted(Comparator.comparing(Order.ItemState::getPrice, Comparator.reverseOrder()))
-                .limit(5)
                 .map(item -> new RestaurantStatistics.TopByPrice(item.getId(), item.getPrice(), item.getDate()))
+                .distinct()
+                .limit(5)
                 .collect(Collectors.toList()),
-            orders.stream().collect(Collectors.groupingBy(OrderValue::getUserId))
+            delivered.stream().collect(Collectors.groupingBy(OrderValue::getUserId))
                 .entrySet()
                 .stream()
                 .map(entry -> new RestaurantStatistics.TopBySpend(
@@ -64,7 +74,7 @@ public class StatisticsService {
                 .sorted(Comparator.comparing(RestaurantStatistics.TopBySpend::summ, Comparator.reverseOrder()))
                 .limit(5)
                 .collect(Collectors.toList()),
-            orders.stream().map(OrderValue::getItems)
+            delivered.stream().map(OrderValue::getItems)
                 .flatMap(Collection::stream)
                 .map(IsActual::getValue)
                 .map(Order.ItemState::getTotal)

@@ -40,7 +40,6 @@ public class OrderRepositoryAdapter implements OrderRepository {
                     order.getApproved(),
                     order.getDelivered(),
                     order.getStatus(),
-                    order.getItems(),
                     order.getState()
                 )
             );
@@ -49,7 +48,6 @@ public class OrderRepositoryAdapter implements OrderRepository {
         orderEntity.setDelivered(order.getDelivered());
         orderEntity.setStatus(order.getStatus());
         orderEntity.setState(order.getState());
-        orderEntity.setItems(order.getItems());
 
         return jpaRepository.save(orderEntity).toModel();
     }

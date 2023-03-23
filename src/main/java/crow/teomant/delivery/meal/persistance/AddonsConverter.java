@@ -23,6 +23,7 @@ public class AddonsConverter implements AttributeConverter<List<Meal.Addon>, Str
     @Override
     @SneakyThrows
     public List<Meal.Addon> convertToEntityAttribute(String dbData) {
-        return objectMapper.readValue(dbData, new TypeReference<List<Meal.Addon>>() {});
+        return objectMapper.readValue(dbData, new TypeReference<List<Meal.Addon>>() {
+        });
     }
 }

@@ -11,7 +11,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -47,10 +46,6 @@ public class OrderEntity {
     @Enumerated(EnumType.STRING)
     private Order.Status status;
 
-    @Column(name = "items")
-    @Convert(converter = ItemsConverter.class)
-    private List<Order.Item> items;
-
     @Column(name = "state")
     @Convert(converter = StateConverter.class)
     private Order.State state;
@@ -64,7 +59,6 @@ public class OrderEntity {
             approved,
             delivered,
             status,
-            items,
             state
         );
     }
