@@ -15,4 +15,4 @@ Validations:
 * Meal: Ensure existence, not deleted, a price, and unique addons. 
 * Order: Ensure existence, correct statuses and actual information about user/restaurant/meals. An update is required to refresh the info.
 
-Application requires Java 17, works with MySql launched on localhost (default port, db, username and password - delivery, settings can be changed via application.properties, migrations can be found in V1__creation.sql). The API can be accessed via Swagger at http://localhost:8090/swagger-ui/index.html 
+Application requires Java 17, works with MySql launched on localhost (default port, db, username and password - delivery, settings can be changed via application.properties, migrations can be found in V1__creation.sql). Swagger can be accessed at /swagger-ui/index.html 
