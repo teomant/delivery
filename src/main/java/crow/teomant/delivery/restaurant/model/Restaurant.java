@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @AllArgsConstructor
 @Getter
@@ -55,11 +56,14 @@ public class Restaurant {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class OpeningHours {
+        @NonNull
         DayOfWeek dayOfWeek;
         //don't do so in production. Use separate dto for web
         @Schema(type = "string", pattern = "HH:MM", example = "10:00")
+        @NonNull
         LocalTime from;
         @Schema(type = "string", pattern = "HH:MM", example = "10:00")
+        @NonNull
         LocalTime to;
     }
 
