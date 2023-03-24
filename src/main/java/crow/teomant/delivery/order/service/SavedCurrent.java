@@ -5,8 +5,8 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class Sugestion<T> {
+public class SavedCurrent<T> {
+    private final T saved;
     private final T current;
-    private final T sugestion;
     private final Boolean actual;
 }

@@ -4,7 +4,7 @@ import crow.teomant.delivery.meal.model.Meal;
 import crow.teomant.delivery.order.model.Order;
 import crow.teomant.delivery.order.service.OrderService;
 import crow.teomant.delivery.order.service.OrderValue;
-import crow.teomant.delivery.order.service.Sugestion;
+import crow.teomant.delivery.order.service.SavedCurrent;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Comparator;
@@ -43,18 +43,18 @@ public class StatisticsService {
                 .limit(5)
                 .map(entry -> new RestaurantStatistics.TopByNumber(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList()),
-            delivered.stream().map(OrderValue::getMetadata).map(OrderValue.Metadata::meals)
+            delivered.stream().map(OrderValue::getContext).map(OrderValue.Context::meals)
                 .flatMap(Collection::stream)
-                .map(Sugestion::getCurrent)
+                .map(SavedCurrent::getSaved)
                 .collect(Collectors.groupingBy(Meal.State::getId, Collectors.counting()))
                 .entrySet()
                 .stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .limit(5)
                 .map(entry -> new RestaurantStatistics.TopByNumber(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList()),
-            delivered.stream().map(OrderValue::getMetadata).map(OrderValue.Metadata::meals)
+            delivered.stream().map(OrderValue::getContext).map(OrderValue.Context::meals)
                 .flatMap(Collection::stream)
-                .map(Sugestion::getCurrent)
+                .map(SavedCurrent::getSaved)
                 .sorted(Comparator.comparing(Meal.State::getPrice, Comparator.reverseOrder()))
                 .map(item -> new RestaurantStatistics.TopByPrice(item.getId(), item.getPrice(), item.getVersion()))
                 .distinct()

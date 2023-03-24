@@ -5,7 +5,7 @@ This is a quick and basic implementation of a delivery service.
 You can create users, restaurants, meals, and orders. You can also edit them and delete users, restaurants, and meals. In addition, you can get statistics for a restaurant.
 
 The entity change history is preserved, and a soft delete is used. Separate entities are used for storage (_Entity), business logic (_State), and sending to users (_Value). 
-Change history stored in json as column in same entity. OrderValue contains metadata that contains information about user, restaurant, and meals at creation/last edition and their current states.
+Change history stored in json as column in same entity. OrderValue has context that contains information about user, restaurant, and meals at creation/last edition and their current states.
 Orders have a small lifecycle: DRAFT (created, edited) -> PROCESSING (approved by user, sent to the restaurant, etc.) -> DELIVERED (delivered to the user). 
 
 Statistics contains information about numbers of draft, processing, and delivered orders, statistics of delivered orders (popular meals, most expensive meals, etc.) 

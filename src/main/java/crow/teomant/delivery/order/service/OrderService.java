@@ -44,15 +44,15 @@ public class OrderService {
             saved.getRestaurantId(),
             saved.getUserId(),
             saved.getCurrentState(),
-            new OrderValue.Metadata(
-                new Sugestion<>(
+            new OrderValue.Context(
+                new SavedCurrent<>(
                     restaurant.map(r -> r.getStateAt(saved.getCurrentState().getVersion())).orElse(null),
                     restaurant.map(Restaurant::getCurrentState).orElse(null),
                     restaurant.map(Restaurant::getCurrentState)
                         .map(state -> state.getVersion().isBefore(saved.getCurrentState().getVersion()))
                         .orElse(false)
                 ),
-                new Sugestion<>(
+                new SavedCurrent<>(
                     user.map(r -> r.getStateAt(saved.getCurrentState().getVersion())).orElse(null),
                     user.map(User::getCurrentState).orElse(null),
                     user.map(User::getCurrentState)
@@ -60,7 +60,7 @@ public class OrderService {
                         .orElse(false)
                 ),
                 mealsInOrder.stream()
-                    .map(meal -> new Sugestion<>(
+                    .map(meal -> new SavedCurrent<>(
                         meal.getStateAt(saved.getCurrentState().getVersion()),
                         meal.getCurrentState(),
                         Optional.ofNullable(meal.getCurrentState())
@@ -109,14 +109,14 @@ public class OrderService {
             saved.getRestaurantId(),
             saved.getUserId(),
             saved.getCurrentState(),
-            new OrderValue.Metadata(
-                new Sugestion<>(restaurant.getCurrentState(),
+            new OrderValue.Context(
+                new SavedCurrent<>(restaurant.getCurrentState(),
                     restaurant.getCurrentState(),
                     restaurant.getCurrentState().getVersion().isBefore(saved.getCurrentState().getVersion())),
-                new Sugestion<>(user.getCurrentState(),
+                new SavedCurrent<>(user.getCurrentState(),
                     user.getCurrentState(),
                     user.getCurrentState().getVersion().isBefore(saved.getCurrentState().getVersion())),
-                mealsInOrder.stream().map(meal -> new Sugestion<>(meal.getCurrentState(), meal.getCurrentState(), true))
+                mealsInOrder.stream().map(meal -> new SavedCurrent<>(meal.getCurrentState(), meal.getCurrentState(), true))
                     .collect(Collectors.toList())
             )
         );
@@ -171,14 +171,14 @@ public class OrderService {
             saved.getRestaurantId(),
             saved.getUserId(),
             saved.getCurrentState(),
-            new OrderValue.Metadata(
-                new Sugestion<>(restaurant.getCurrentState(),
+            new OrderValue.Context(
+                new SavedCurrent<>(restaurant.getCurrentState(),
                     restaurant.getCurrentState(),
                     restaurant.getCurrentState().getVersion().isBefore(saved.getCurrentState().getVersion())),
-                new Sugestion<>(user.getCurrentState(),
+                new SavedCurrent<>(user.getCurrentState(),
                     user.getCurrentState(),
                     user.getCurrentState().getVersion().isBefore(saved.getCurrentState().getVersion())),
-                mealsInOrder.stream().map(meal -> new Sugestion<>(meal.getCurrentState(), meal.getCurrentState(), true))
+                mealsInOrder.stream().map(meal -> new SavedCurrent<>(meal.getCurrentState(), meal.getCurrentState(), true))
                     .collect(Collectors.toList())
             )
         );
